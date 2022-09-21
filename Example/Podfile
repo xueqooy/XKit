@@ -1,0 +1,13 @@
+use_frameworks!
+
+platform :ios, '10.0'
+
+target 'EDKit_Example' do
+  pod 'EDKit', :path => '../'
+
+  target 'EDKit_Tests' do
+    inherit! :search_paths
+
+    
+  end
+end
