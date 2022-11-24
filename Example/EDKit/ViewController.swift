@@ -7,12 +7,79 @@
 //
 
 import UIKit
+import EDKit
 
 class ViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
+             
+                
+//        exchangeImplementations(Human.self, originSelector: #selector(Human.walk), newSelector: #selector(Human.swizzle_walk))
+//
+//        overrideImplementation(Human.self, selector: #selector(Human.walk)) { originClass, originSelector, originIMPProvider in
+//            return ({ (object: AnyObject) -> Void in
+//                // call origin impl
+//                let oriIMP = unsafeBitCast(originIMPProvider(), to: (@convention(c) (AnyObject, Selector) -> Void).self)
+//                oriIMP(object, originSelector)
+//
+//                print("has override walk method")
+//            } as @convention(block) (AnyObject) -> Void)
+//        }
+//
+//        overrideImplementation(Human.self, selector: #selector(Human.speak(_:))) { originClass, originSelector, originIMPProvider in
+//            return ({ (object: AnyObject, words: String) -> Void in
+//                if let human = object as? Human {
+//                    // call origin impl
+//                    let oriIMP = unsafeBitCast(originIMPProvider(), to: (@convention(c) (AnyObject, Selector, String) -> Void).self)
+//                    oriIMP(human, originSelector, words)
+//
+//                    print("has override speak method")
+//                }
+//            } as @convention(block) (AnyObject, String) -> Void)
+//        }
+//
+//        overrideImplementation(Human.self, selector: #selector(Human.doWork(_:))) { originClass, originSelector, originIMPProvider in
+//            return ({ (object: AnyObject, task: String) -> String in
+//                // call origin impl
+//                let oriIMP = unsafeBitCast(originIMPProvider(), to: (@convention(c) (AnyObject, Selector, String) -> String).self)
+//                let result = oriIMP(object, originSelector, task)
+//
+//                print("has override doWork method")
+//
+//                return result
+//            } as @convention(block) (AnyObject, String) -> String)
+//        }
+        
+//        Human().speak("123")
+//        Human().walk()
+//        Human().swizzle_walk()
+//        print(Human().doWork("1236"))
+        
+//        Once.execute("123") {
+//            print("123")
+//        }
+//
+//        Once.execute("123") {
+//            print("456")
+//        }
+        var set = WeakSet<Int>()
+        
+        let h1 = Human()
+        let h2 = Human()
+       
+        set.insert(1)
+        set.insert(2)
+        
+        print(set.weakReferenceCount)
+        
+        set.remove(1)
+        set.remove(2)
+        
+        DispatchQueue.main.async {
+            print(set.weakReferenceCount)
+        }
     }
 
     override func didReceiveMemoryWarning() {
@@ -22,3 +89,31 @@ class ViewController: UIViewController {
 
 }
 
+class Human {
+    
+    @objc dynamic func walk() {
+        print("Human walk")
+    }
+    
+    @objc dynamic func swizzle_walk() {
+        print("Human walk (swizzled)")
+    }
+    
+    @objc dynamic func speak(_ words: String) {
+        print(words)
+    }
+    
+    @objc dynamic func doWork(_ task: String) -> String {
+        if task.count > 5 {
+            return "Human failed in task \(task)"
+        } else {
+            return"Human succeeded in task \(task)"
+        }
+    }
+}
+
+//class Man: Human {
+//    override func walk() {
+//        print("Man walk")
+//    }
+//}
