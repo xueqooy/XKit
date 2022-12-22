@@ -17,7 +17,7 @@ public struct Asserts {
         guard !condition() else { return }
         
         let msg = message()
-        Logs.error(msg.isEmpty ? "Assertion failed." : "Assertion failed: \(msg)", file: file, function: function, line: line)
+        Logs.error(msg.isEmpty ? "Assertion failed." : "Assertion failed: \(msg)", tag: "Assertion",  file: file, function: function, line: line)
         assertionFailure(msg)
     }
      

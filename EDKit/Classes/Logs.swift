@@ -33,7 +33,6 @@ public struct LogItem {
         self.line = line
         self.function = function
     }
-    
 }
 
 public protocol LogFormatting {
@@ -47,7 +46,10 @@ public protocol Logging: AnyObject {
 }
 
 
+// MARK: - Formatter
+
 public class DefaultLogFormatter: LogFormatting {
+    
     public func format(_ item: LogItem) -> String {
         let prefix: String
         switch item.type {
@@ -66,6 +68,35 @@ public class DefaultLogFormatter: LogFormatting {
         " -> \(item.message)"
     }
 }
+
+public let defaultFileLogDateFormatter = {
+    let dateFormatter = DateFormatter()
+    dateFormatter.dateFormat =  "yyyy-MM-dd HH:mm:ss.SSS"
+    return dateFormatter
+}()
+
+public class DefaultFileLogFormatter: DefaultLogFormatter {
+    private var dateFormatter: DateFormatter?
+    
+    public init(dateFormatter: DateFormatter? = defaultFileLogDateFormatter) {
+        self.dateFormatter = dateFormatter
+        super.init()
+    }
+    
+    public override func format(_ item: LogItem) -> String {
+        var formattedMessage = super.format(item) + "\n"
+        
+        if let dateFormatter = dateFormatter {
+            let dateString = dateFormatter.string(from: Date())
+            formattedMessage = dateString + " " + formattedMessage
+        }
+        
+        return formattedMessage
+    }
+}
+
+
+// MARK: - Logger
 
 public class ConsoleLogger: Logging {
         
@@ -136,7 +167,55 @@ public class ConsoleLogger: Logging {
     
 }
 
-
+public class FileLogger: Logging {
+    public var formatter: LogFormatting = DefaultFileLogFormatter()
+    
+    private let fileHandle: FileHandle
+    
+    public init(fileHandle: FileHandle) {
+        self.fileHandle = fileHandle
+    }
+    
+    public convenience init?(name: String) {
+        // Create directory named Logs
+        let searchPaths = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)
+        var logFilePath = (searchPaths[0] as NSString).appendingPathComponent("Logs")
+        let fileManager = FileManager.default
+        if !fileManager.fileExists(atPath: logFilePath) {
+            do {
+                try fileManager.createDirectory(atPath: logFilePath, withIntermediateDirectories: true)
+            } catch {
+                return nil
+            }
+        }
+        
+        // Create file named (name)+(date).log
+        let date = Date()
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd--HH-mm-ss"
+        logFilePath = (logFilePath as NSString).appendingPathComponent("\(name)-\(dateFormatter.string(from: date)).log")
+        fileManager.createFile(atPath: logFilePath, contents: nil)
+        
+        guard let fileHandle = FileHandle(forWritingAtPath: logFilePath) else {
+            return nil
+        }
+        self.init(fileHandle: fileHandle)
+    }
+    
+    public func log(_ item: LogItem) {
+        let formattedMessage = formatter.format(item)
+        guard let messageData = formattedMessage.data(using: .utf8) else {
+            return
+        }
+        
+        if #available(iOS 13.4, *) {
+            try? fileHandle.write(contentsOf: messageData)
+        } else {
+            fileHandle.write(messageData)
+        }
+    }
+    
+}
 
 
 public struct Logs {

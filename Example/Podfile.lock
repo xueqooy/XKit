@@ -1,0 +1,16 @@
+PODS:
+  - EDKit (0.1.0)
+
+DEPENDENCIES:
+  - EDKit (from `../`)
+
+EXTERNAL SOURCES:
+  EDKit:
+    :path: "../"
+
+SPEC CHECKSUMS:
+  EDKit: 729e481fe44ad1efcde08989c798870d2f13eba3
+
+PODFILE CHECKSUM: 74fbb694027cbd0717361991fadd2fe5258a56cc
+
+COCOAPODS: 1.11.3
