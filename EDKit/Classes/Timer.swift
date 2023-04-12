@@ -10,11 +10,12 @@ public final class Timer {
         timer.value != nil
     }
     
+    public let interval: Double
+    public let isRepeated: Bool
+    public let work: () -> Void
+    public let queue: WorkQueueType
+    
     private let timer = Atomic<DispatchSourceTimer?>(value: nil)
-    private let interval: Double
-    private let isRepeated: Bool
-    private let work: () -> Void
-    private let queue: WorkQueueType
     
     public init(interval: Double, isRepeated: Bool = false, queue: WorkQueueType = Queue.main, work: @escaping() -> Void) {
         self.interval = interval
