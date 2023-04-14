@@ -8,13 +8,56 @@
 
 import UIKit
 import EDKit
+import Combine
 
-class ViewController: UIViewController {
+class Owner: StateObservableObject {
+    @StateObject var dog: Dog
+    
+    init(dog: Dog) {
+        self.dog = dog
+    }
+}
 
+class Dog: StateObservableObject {
+    @EquatableState var name: String
+    
+    init(name: String) {
+        self.name = name
+    }
+}
+
+class ViewController: UIViewController, StateObservableObject {
+
+    @State var isOpen: Bool = false
+        
+    @StateObject var owner: Owner = .init(dog: Dog(name: "bokita"))
+    
+    var cancellables: Set<AnyCancellable> = []
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
              
+        Queue.main.execute(.delay(1)) { [weak self] in
+//            self?.isOpen = true
+            self?.owner.dog.name = "bokita"
+        }
+    
+        stateWillChange.sink { [weak self]  in
+            guard let self = self else {
+                return
+            }
+            print("will change \(self.owner.dog.name) \(self.isOpen)")
+        }
+        .store(in: &cancellables)
+        
+        stateDidChange.sink { [weak self]  in
+            guard let self = self else {
+                return
+            }
+            print("did change \(self.owner.dog.name) \(self.isOpen)")
+        }
+        .store(in: &cancellables)
                 
 //        exchangeImplementations(Human.self, originSelector: #selector(Human.walk), newSelector: #selector(Human.swizzle_walk))
 //
