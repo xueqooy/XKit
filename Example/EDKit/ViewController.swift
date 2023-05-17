@@ -19,7 +19,7 @@ class Owner: StateObservableObject {
 }
 
 class Dog: StateObservableObject {
-    @EquatableState var name: String
+    @State var name: String
     
     init(name: String) {
         self.name = name

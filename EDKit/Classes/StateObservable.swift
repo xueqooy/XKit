@@ -129,6 +129,38 @@ public struct StateObject<Value: StateObservableObject> {
 
 @available(iOS 13.0, *)
 @propertyWrapper
+public struct State<Value> {
+    @available(*, unavailable)
+    public var wrappedValue: Value {
+        get { fatalError() }
+        // swiftlint:disable unused_setter_value
+        set { fatalError() }
+    }
+    
+
+    private var storage: Value
+
+    /// Create a property wrapper with initial value.
+    /// - Parameter wrappedValue: The initial value.
+    public init(wrappedValue: Value) {
+        storage = wrappedValue
+    }
+
+    public static subscript<T: StateObservableObject>(_enclosingInstance instance: T, wrapped wrappedKeyPath: ReferenceWritableKeyPath<T, Value>, storage storageKeyPath: ReferenceWritableKeyPath<T, State>) -> Value {
+        get {
+            instance[keyPath: storageKeyPath].storage
+        }
+        set {
+            instance.stateWillChange.send()
+            instance[keyPath: storageKeyPath].storage = newValue
+            instance.stateDidChange.send()
+        }
+    }
+}
+
+
+@available(iOS 13.0, *)
+@propertyWrapper
 public struct EquatableState<Value: Equatable> {
     @available(*, unavailable)
     public var wrappedValue: Value {
