@@ -54,13 +54,13 @@ public class DefaultLogFormatter: LogFormatting {
         let prefix: String
         switch item.type {
         case .verbose:
-            prefix = "🔵"
+            prefix = "LOG🔵"
         case .info:
-            prefix = "🟢"
+            prefix = "LOG🟢"
         case .warn:
-            prefix = "🟡"
+            prefix = "LOG🟡"
         case .error:
-            prefix = "🔴"
+            prefix = "LOG🔴"
         }
         return prefix +
         " [\((item.file as NSString).lastPathComponent):\(item.line) \(item.function)]" +
