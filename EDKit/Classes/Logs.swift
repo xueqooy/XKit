@@ -154,9 +154,9 @@ public class ConsoleLogger: Logging {
             switch item.type {
             case .verbose:
                 osLogType = .debug
-            case .info, .warn:
+            case .info:
                 osLogType = .info
-            case .error:
+            case .warn, .error:
                 osLogType = .error
             }
             os_log(osLogType, log: oslogger, "%{public}s", formattedMessage)
