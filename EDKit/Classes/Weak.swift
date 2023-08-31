@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct Weak<T> {
+public class Weak<T> {
     private weak var _value: AnyObject?
     
     private let identifier: ObjectIdentifier
