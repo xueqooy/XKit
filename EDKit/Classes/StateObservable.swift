@@ -37,30 +37,28 @@ public protocol StateObservableObject: AnyObject {
     var stateDidChange: StateObservableObjectPublisher{ get }
 }
 
-private enum AssociatedKeys {
-    static var willChangePublisher = "EDKit.willChangePublisher"
-    static var didChangePublisher = "EDKit.didChangePublisher"
-}
+private let willChangePublisherAssociation = Association<StateObservableObjectPublisher>()
+private let didChangePublisherAssociation = Association<StateObservableObjectPublisher>()
 
 @available(iOS 13.0, *)
 public extension StateObservableObject {
     
     var stateWillChange: StateObservableObjectPublisher {
-        var subject = objc_getAssociatedObject(self, &AssociatedKeys.willChangePublisher) as? StateObservableObjectPublisher
-        if subject == nil {
-            subject = .init()
-            objc_setAssociatedObject(self, &AssociatedKeys.willChangePublisher, subject, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        var publisher = willChangePublisherAssociation[self]
+        if publisher == nil {
+            publisher = .init()
+            willChangePublisherAssociation[self] = publisher
         }
-        return subject!
+        return publisher!
     }
     
     var stateDidChange: StateObservableObjectPublisher {
-        var subject = objc_getAssociatedObject(self, &AssociatedKeys.didChangePublisher) as? StateObservableObjectPublisher
-        if subject == nil {
-            subject = .init()
-            objc_setAssociatedObject(self, &AssociatedKeys.didChangePublisher, subject, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        var publisher = didChangePublisherAssociation[self]
+        if publisher == nil {
+            publisher = .init()
+            didChangePublisherAssociation[self] = publisher
         }
-        return subject!
+        return publisher!
     }
 }
 
@@ -139,7 +137,14 @@ public struct State<Value> {
     
 
     private var storage: Value
+    
+    private let willChangeSubject = PassthroughSubject<Value, Never>()
+    private let didChangeSubject = PassthroughSubject<Value, Never>()
 
+    public var projectedValue: (willChange: AnyPublisher<Value, Never>, didChange: AnyPublisher<Value, Never>) {
+        (willChangeSubject.eraseToAnyPublisher(), didChangeSubject.eraseToAnyPublisher())
+    }
+    
     /// Create a property wrapper with initial value.
     /// - Parameter wrappedValue: The initial value.
     public init(wrappedValue: Value) {
@@ -150,9 +155,11 @@ public struct State<Value> {
         get {
             instance[keyPath: storageKeyPath].storage
         }
-        set {
+        set {            
+            instance[keyPath: storageKeyPath].willChangeSubject.send(newValue)
             instance.stateWillChange.send()
             instance[keyPath: storageKeyPath].storage = newValue
+            instance[keyPath: storageKeyPath].didChangeSubject.send(newValue)
             instance.stateDidChange.send()
         }
     }
@@ -172,24 +179,33 @@ public struct EquatableState<Value: Equatable> {
 
     private var storage: Value
 
+    private let willChangeSubject = PassthroughSubject<Value, Never>()
+    private let didChangeSubject = PassthroughSubject<Value, Never>()
+
+    public var projectedValue: (willChange: AnyPublisher<Value, Never>, didChange: AnyPublisher<Value, Never>) {
+        (willChangeSubject.eraseToAnyPublisher(), didChangeSubject.eraseToAnyPublisher())
+    }
+    
     /// Create a property wrapper with initial value.
     /// - Parameter wrappedValue: The initial value.
     public init(wrappedValue: Value) {
         storage = wrappedValue
     }
-
+    
     public static subscript<T: StateObservableObject>(_enclosingInstance instance: T, wrapped wrappedKeyPath: ReferenceWritableKeyPath<T, Value>, storage storageKeyPath: ReferenceWritableKeyPath<T, EquatableState>) -> Value where Value : Equatable {
         get {
             instance[keyPath: storageKeyPath].storage
         }
         set {
-            if instance[keyPath: storageKeyPath].storage == newValue {
+            if  instance[keyPath: storageKeyPath].storage == newValue {
                 instance[keyPath: storageKeyPath].storage = newValue
                 return
             }
             
+            instance[keyPath: storageKeyPath].willChangeSubject.send(newValue)
             instance.stateWillChange.send()
             instance[keyPath: storageKeyPath].storage = newValue
+            instance[keyPath: storageKeyPath].didChangeSubject.send(newValue)
             instance.stateDidChange.send()
         }
     }
