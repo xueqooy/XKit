@@ -38,6 +38,18 @@ class ViewController: UIViewController, StateObservableObject {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
              
+        $isOpen.willChange.sink { isOpen in
+            print("will \(self.isOpen) \(isOpen)")
+        }
+        .store(in: &cancellables)
+        
+        $isOpen.didChange.sink { isOpen in
+            print("did \(self.isOpen) \(isOpen)")
+        }
+        .store(in: &cancellables)
+        
+        isOpen = true
+        
         Queue.main.execute(.delay(1)) { [weak self] in
 //            self?.isOpen = true
             self?.owner.dog.name = "bokita"

@@ -37,7 +37,9 @@ public protocol StateObservableObject: AnyObject {
     var stateDidChange: StateObservableObjectPublisher{ get }
 }
 
+@available(iOS 13.0, *)
 private let willChangePublisherAssociation = Association<StateObservableObjectPublisher>()
+@available(iOS 13.0, *)
 private let didChangePublisherAssociation = Association<StateObservableObjectPublisher>()
 
 @available(iOS 13.0, *)
@@ -155,7 +157,7 @@ public struct State<Value> {
         get {
             instance[keyPath: storageKeyPath].storage
         }
-        set {            
+        set {
             instance[keyPath: storageKeyPath].willChangeSubject.send(newValue)
             instance.stateWillChange.send()
             instance[keyPath: storageKeyPath].storage = newValue
