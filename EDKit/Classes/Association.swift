@@ -7,6 +7,42 @@
 
 import Foundation
 
+/**
+struct CustomStruct {}
+class CustomObject {}
+typealias Block = () -> Void
+
+extension UIView {
+    private struct Associations {
+        static let objectAssociation = Association<CustomObject>()
+        static let weakObjectAssociation = Association<CustomObject>(wrap: .weak)
+        static let structAssociation = Association<CustomStruct>(wrap: .retain)
+        static let blockAssociation = Association<Block>(wrap: .retain)
+    }
+
+    var customStruct: CustomStruct? {
+        get { Associations.structAssociation[self] }
+        set { Associations.structAssociation[self] = newValue }
+    }
+
+    var customObject: CustomObject? {
+        get { Associations.objectAssociation[self] }
+        set { Associations.objectAssociation[self] = newValue }
+    }
+
+    var weakCustomObject: CustomObject? {
+        get { Associations.weakObjectAssociation[self] }
+        set { Associations.weakObjectAssociation[self] = newValue }
+    }
+
+    var block: Block? {
+        get { Associations.blockAssociation[self] }
+        set { Associations.blockAssociation[self] = newValue }
+    }
+}
+
+*/
+
 public class Association<T> {
     public enum Policy {
         case assign

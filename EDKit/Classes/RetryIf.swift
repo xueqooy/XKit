@@ -14,7 +14,7 @@ public extension Publisher {
 }
 
 public extension Publishers {
-    public struct RetryIf<Upstream: Publisher>: Publisher {
+    struct RetryIf<Upstream: Publisher>: Publisher {
         public typealias Output = Upstream.Output
         public typealias Failure = Upstream.Failure
 

@@ -97,7 +97,7 @@ public class PipeSourceChannel<T>: PipeChannel {
         }
     }
     
-    public func read(onQueue queue: WorkQueueType? = nil, replay: Bool = false, block: @escaping (T?) -> Void) -> PipeSourceToken? {
+    public func read(onQueue queue: WorkQueuing? = nil, replay: Bool = false, block: @escaping (T?) -> Void) -> PipeSourceToken? {
         if self.isInvalidated {
             return nil
         }

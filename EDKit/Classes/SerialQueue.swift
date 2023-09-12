@@ -9,7 +9,7 @@ import Foundation
 import Dispatch
 
 private var sharedQueues = [String : SerialQueue]()
-public class SerialQueue: NSObject, WorkQueueType {
+public class SerialQueue: NSObject, WorkQueuing {
     
     public static let main: SerialQueue = SerialQueue(queue: .main)
     

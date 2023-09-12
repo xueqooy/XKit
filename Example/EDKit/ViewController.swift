@@ -121,9 +121,6 @@ class ViewController: UIViewController, StateObservableObject {
 //        }
         var set = WeakSet<Int>()
         
-        let h1 = Human()
-        let h2 = Human()
-       
         set.insert(1)
         set.insert(2)
         

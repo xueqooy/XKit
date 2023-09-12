@@ -7,13 +7,13 @@
 
 import Foundation
 
-public protocol WorkQueueType {
+public protocol WorkQueuing {
     var underlyingQueue: DispatchQueue { get }
     
     func execute(_ work: @escaping () -> Void)
 }
 
-extension DispatchQueue: WorkQueueType {
+extension DispatchQueue: WorkQueuing {
     public var underlyingQueue: DispatchQueue {
         self
     }
@@ -86,7 +86,7 @@ public final class Queue {
     }
 }
 
-extension Queue: WorkQueueType {
+extension Queue: WorkQueuing {
     public func execute(_ work: @escaping () -> Void) {
         execute(.async(), work: work)
     }

@@ -8,7 +8,6 @@
 import Foundation
 import Combine
 
-@available(iOS 13.0, *)
 final public class StateObservableObjectPublisher : Publisher {
     
     public typealias Output = Void
@@ -31,18 +30,14 @@ final public class StateObservableObjectPublisher : Publisher {
 }
 
 
-@available(iOS 13.0, *)
 public protocol StateObservableObject: AnyObject {
     var stateWillChange: StateObservableObjectPublisher { get }
     var stateDidChange: StateObservableObjectPublisher{ get }
 }
 
-@available(iOS 13.0, *)
 private let willChangePublisherAssociation = Association<StateObservableObjectPublisher>()
-@available(iOS 13.0, *)
 private let didChangePublisherAssociation = Association<StateObservableObjectPublisher>()
 
-@available(iOS 13.0, *)
 public extension StateObservableObject {
     
     var stateWillChange: StateObservableObjectPublisher {
@@ -65,7 +60,6 @@ public extension StateObservableObject {
 }
 
 
-@available(iOS 13.0, *)
 @propertyWrapper
 public struct StateObject<Value: StateObservableObject> {
     @available(*, unavailable)
@@ -126,8 +120,6 @@ public struct StateObject<Value: StateObservableObject> {
     }
 }
 
-
-@available(iOS 13.0, *)
 @propertyWrapper
 public struct State<Value> {
     @available(*, unavailable)
@@ -168,7 +160,6 @@ public struct State<Value> {
 }
 
 
-@available(iOS 13.0, *)
 @propertyWrapper
 public struct EquatableState<Value: Equatable> {
     @available(*, unavailable)
