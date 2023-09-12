@@ -108,10 +108,12 @@ public struct StateObject<Value: StateObservableObject> {
         self.storage = wrappedValue
     }
     
-    public static subscript<T: StateObservableObject>(_enclosingInstance instance: T, wrapped wrappedKeyPath: ReferenceWritableKeyPath<T, Value>, storage storageKeyPath: ReferenceWritableKeyPath<T, StateObject>) -> Value {
+    public static subscript<T>(_enclosingInstance instance: T, wrapped wrappedKeyPath: ReferenceWritableKeyPath<T, Value>, storage storageKeyPath: ReferenceWritableKeyPath<T, StateObject>) -> Value {
         get {
             let storage = instance[keyPath: storageKeyPath].storage
-            instance[keyPath: storageKeyPath].box.bind(storage, to: instance)
+            if let stateObservableObject = instance as? StateObservableObject {
+                instance[keyPath: storageKeyPath].box.bind(storage, to: stateObservableObject)
+            }
             return storage
         }
         set {
@@ -145,16 +147,18 @@ public struct State<Value> {
         storage = wrappedValue
     }
 
-    public static subscript<T: StateObservableObject>(_enclosingInstance instance: T, wrapped wrappedKeyPath: ReferenceWritableKeyPath<T, Value>, storage storageKeyPath: ReferenceWritableKeyPath<T, State>) -> Value {
+    public static subscript<T>(_enclosingInstance instance: T, wrapped wrappedKeyPath: ReferenceWritableKeyPath<T, Value>, storage storageKeyPath: ReferenceWritableKeyPath<T, State>) -> Value {
         get {
             instance[keyPath: storageKeyPath].storage
         }
         set {
+            let stateObservableObject = instance as? StateObservableObject
+            
             instance[keyPath: storageKeyPath].willChangeSubject.send(newValue)
-            instance.stateWillChange.send()
+            stateObservableObject?.stateWillChange.send()
             instance[keyPath: storageKeyPath].storage = newValue
             instance[keyPath: storageKeyPath].didChangeSubject.send(newValue)
-            instance.stateDidChange.send()
+            stateObservableObject?.stateDidChange.send()
         }
     }
 }
@@ -185,7 +189,7 @@ public struct EquatableState<Value: Equatable> {
         storage = wrappedValue
     }
     
-    public static subscript<T: StateObservableObject>(_enclosingInstance instance: T, wrapped wrappedKeyPath: ReferenceWritableKeyPath<T, Value>, storage storageKeyPath: ReferenceWritableKeyPath<T, EquatableState>) -> Value where Value : Equatable {
+    public static subscript<T>(_enclosingInstance instance: T, wrapped wrappedKeyPath: ReferenceWritableKeyPath<T, Value>, storage storageKeyPath: ReferenceWritableKeyPath<T, EquatableState>) -> Value where Value : Equatable {
         get {
             instance[keyPath: storageKeyPath].storage
         }
@@ -195,11 +199,13 @@ public struct EquatableState<Value: Equatable> {
                 return
             }
             
+            let stateObservableObject = instance as? StateObservableObject
+            
             instance[keyPath: storageKeyPath].willChangeSubject.send(newValue)
-            instance.stateWillChange.send()
+            stateObservableObject?.stateWillChange.send()
             instance[keyPath: storageKeyPath].storage = newValue
             instance[keyPath: storageKeyPath].didChangeSubject.send(newValue)
-            instance.stateDidChange.send()
+            stateObservableObject?.stateDidChange.send()
         }
     }
 }

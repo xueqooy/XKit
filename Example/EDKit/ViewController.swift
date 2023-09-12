@@ -26,7 +26,7 @@ class Dog: StateObservableObject {
     }
 }
 
-class ViewController: UIViewController, StateObservableObject {
+class ViewController: UIViewController {
 
     @State var isOpen: Bool = false
         
@@ -48,6 +48,12 @@ class ViewController: UIViewController, StateObservableObject {
         }
         .store(in: &cancellables)
         
+        owner.stateDidChange
+            .sink { _ in
+                print("owner did change")
+            }
+            .store(in: &cancellables)
+        
         isOpen = true
         
         Queue.main.execute(.delay(1)) { [weak self] in
@@ -55,21 +61,21 @@ class ViewController: UIViewController, StateObservableObject {
             self?.owner.dog.name = "bokita"
         }
     
-        stateWillChange.sink { [weak self]  in
-            guard let self = self else {
-                return
-            }
-            print("will change \(self.owner.dog.name) \(self.isOpen)")
-        }
-        .store(in: &cancellables)
-        
-        stateDidChange.sink { [weak self]  in
-            guard let self = self else {
-                return
-            }
-            print("did change \(self.owner.dog.name) \(self.isOpen)")
-        }
-        .store(in: &cancellables)
+//        stateWillChange.sink { [weak self]  in
+//            guard let self = self else {
+//                return
+//            }
+//            print("will change \(self.owner.dog.name) \(self.isOpen)")
+//        }
+//        .store(in: &cancellables)
+//
+//        stateDidChange.sink { [weak self]  in
+//            guard let self = self else {
+//                return
+//            }
+//            print("did change \(self.owner.dog.name) \(self.isOpen)")
+//        }
+//        .store(in: &cancellables)
                 
 //        exchangeImplementations(Human.self, originSelector: #selector(Human.walk), newSelector: #selector(Human.swizzle_walk))
 //
