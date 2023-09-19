@@ -141,8 +141,8 @@ public class PagingDataManager<Provider: PagingDataProviding>: StateObservableOb
             case .failure(let error):
                 guard !error.isCancelled else { return }
                             
-                // Enable load more if has more data
-                self.canLoadMore = !self.isEndOfData
+                // Enable load more if has more data and loaded data
+                self.canLoadMore = !self.isEndOfData && !self.isDataEmpty
                 
                 self.didEndLoadingSubject.send()
                 
