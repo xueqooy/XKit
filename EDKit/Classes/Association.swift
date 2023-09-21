@@ -112,8 +112,8 @@ public class Association<T> {
         }
     }
     
-    private var key: UnsafeMutableRawPointer {
-        Unmanaged.passUnretained(self).toOpaque()
+    private var key: UnsafeRawPointer {
+        UnsafeRawPointer(Unmanaged.passUnretained(self).toOpaque())
     }
 }
 
