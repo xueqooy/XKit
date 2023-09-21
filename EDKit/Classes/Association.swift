@@ -14,9 +14,17 @@ typealias Block = () -> Void
 
 extension UIView {
     private struct Associations {
+        // The default is not to use wrap, that is, wrap to `none`
         static let objectAssociation = Association<CustomObject>()
+ 
+        // Using `weak` wrap for weakly referenced associative object
         static let weakObjectAssociation = Association<CustomObject>(wrap: .weak)
+ 
+        // It is recommended to use `retain` wrap for custom value types. For types that can be bridged to objc, such as String, Bool, Int, etc., Wrap may not be used
+        // However, after Swift3, the custom value type will be converted to `SwiftValue` in objc, and Wrap may not be used.
         static let structAssociation = Association<CustomStruct>(wrap: .retain)
+                
+        // Associate closures must use `retain` wrap
         static let blockAssociation = Association<Block>(wrap: .retain)
     }
 
