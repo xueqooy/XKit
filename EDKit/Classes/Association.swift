@@ -65,10 +65,10 @@ public class Association<T> {
         case weak
     }
     
-    private class Retain<T> {
-        let value: T
+    private class Retain<Value> {
+        let value: Value
     
-        init(_ value: T) {
+        init(_ value: Value) {
             self.value = value
         }
     }
