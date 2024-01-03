@@ -39,19 +39,13 @@ public class PagingDataManager<Provider: PagingDataProviding>: StateObservableOb
     @EquatableState
     public private(set) var isEndOfData: Bool = false
     
+    @EquatableState
+    public private(set) var isLoading: Bool = false
+    
     public var isDataEmpty: Bool {
         data.isEmpty
     }
         
-    public var didBeginLoadingPublisher: AnyPublisher<Void, Never> {
-        didBeginLoadingSubject.eraseToAnyPublisher()
-    }
-    public var didEndLoadingPublisher: AnyPublisher<Void, Never> {
-        didEndLoadingSubject.eraseToAnyPublisher()
-    }
-    private let didBeginLoadingSubject = PassthroughSubject<Void, Never>()
-    private let didEndLoadingSubject = PassthroughSubject<Void, Never>()
-    
     public let startPage: Int
     public let numberOfLoadsPerPage: Int
     public let provider: Provider
@@ -114,7 +108,7 @@ public class PagingDataManager<Provider: PagingDataProviding>: StateObservableOb
         Logs.info("\(self) \(action) -> request to load page \(pageToLoad)", tag: debugName)
         
         // Start new request
-        didBeginLoadingSubject.send()
+        isLoading = true
         currentLoadRequest = provider.requestToLoadData(atPage: pageToLoad, forManager: self) { [weak self] result in
             guard let self = self else { return }
             
@@ -135,7 +129,7 @@ public class PagingDataManager<Provider: PagingDataProviding>: StateObservableOb
                 // Enable load more if has more data
                 self.canLoadMore = !isEndOfData
                 
-                self.didEndLoadingSubject.send()
+                self.isLoading = false
                 
                 Logs.info("\(self) \(action) -> data did load +\(data.count)", tag: debugName)
             case .failure(let error):
@@ -144,7 +138,7 @@ public class PagingDataManager<Provider: PagingDataProviding>: StateObservableOb
                 // Enable load more if has more data and loaded data
                 self.canLoadMore = !self.isEndOfData && !self.isDataEmpty
                 
-                self.didEndLoadingSubject.send()
+                self.isLoading = false
                 
                 Logs.error("\(self) \(action) -> load data error \(error)", tag: debugName)
             }
