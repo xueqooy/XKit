@@ -134,8 +134,8 @@ public struct State<Value> {
 
     private var storage: Value
     
-    private let willChangeSubject = PassthroughSubject<Value, Never>()
-    private let didChangeSubject = PassthroughSubject<Value, Never>()
+    private let willChangeSubject: PassthroughSubject<Value, Never>
+    private let didChangeSubject: CurrentValueSubject<Value, Never>
 
     public var projectedValue: (willChange: AnyPublisher<Value, Never>, didChange: AnyPublisher<Value, Never>) {
         (willChangeSubject.eraseToAnyPublisher(), didChangeSubject.eraseToAnyPublisher())
@@ -145,6 +145,9 @@ public struct State<Value> {
     /// - Parameter wrappedValue: The initial value.
     public init(wrappedValue: Value) {
         storage = wrappedValue
+        
+        willChangeSubject = .init()
+        didChangeSubject = .init(wrappedValue)
     }
 
     public static subscript<T>(_enclosingInstance instance: T, wrapped wrappedKeyPath: ReferenceWritableKeyPath<T, Value>, storage storageKeyPath: ReferenceWritableKeyPath<T, State>) -> Value {
@@ -176,8 +179,9 @@ public struct EquatableState<Value: Equatable> {
 
     private var storage: Value
 
-    private let willChangeSubject = PassthroughSubject<Value, Never>()
-    private let didChangeSubject = PassthroughSubject<Value, Never>()
+    private let willChangeSubject: PassthroughSubject<Value, Never>
+    /// Use `currentValueSubject` to get the current value when subscribing
+    private let didChangeSubject: CurrentValueSubject<Value, Never>
 
     public var projectedValue: (willChange: AnyPublisher<Value, Never>, didChange: AnyPublisher<Value, Never>) {
         (willChangeSubject.eraseToAnyPublisher(), didChangeSubject.eraseToAnyPublisher())
@@ -187,6 +191,9 @@ public struct EquatableState<Value: Equatable> {
     /// - Parameter wrappedValue: The initial value.
     public init(wrappedValue: Value) {
         storage = wrappedValue
+        
+        willChangeSubject = .init()
+        didChangeSubject = .init(wrappedValue)
     }
     
     public static subscript<T>(_enclosingInstance instance: T, wrapped wrappedKeyPath: ReferenceWritableKeyPath<T, Value>, storage storageKeyPath: ReferenceWritableKeyPath<T, EquatableState>) -> Value where Value : Equatable {
