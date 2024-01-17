@@ -10,134 +10,44 @@ import UIKit
 import EDKit
 import Combine
 
-class Owner: StateObservableObject {
-    @StateObject var dog: Dog
-    
-    init(dog: Dog) {
-        self.dog = dog
-    }
-}
-
-class Dog: StateObservableObject {
-    @State var name: String
-    
-    init(name: String) {
-        self.name = name
-    }
-}
 
 class ViewController: UIViewController {
-
-    @State var isOpen: Bool = false
-        
-    @StateObject var owner: Owner = .init(dog: Dog(name: "bokita"))
     
-    var cancellables: Set<AnyCancellable> = []
+    lazy var myDataProvider = MyDataProvider()
+    lazy var dataManager = PagingDataManager(startPage: 0, numberOfLoadsPerPage: 10, provider: myDataProvider)
+    
+    var cancellables = Set<AnyCancellable>()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
-             
-        $isOpen.willChange.sink { isOpen in
-            print("will \(self.isOpen) \(isOpen)")
-        }
-        .store(in: &cancellables)
         
-        $isOpen.didChange.sink { isOpen in
-            print("did \(self.isOpen) \(isOpen)")
-        }
-        .store(in: &cancellables)
+        Logs.add(ConsoleLogger.shared)
         
-        owner.stateDidChange
-            .sink { _ in
-                print("owner did change")
+//        dataManager.didBeginLoadingPublisher
+//            .sink {
+//                print("Begin load")
+//            }
+//            .store(in: &cancellables)
+//
+//        dataManager.didEndLoadingPublisher
+//            .sink {
+//                print("End load")
+//            }
+//            .store(in: &cancellables)
+        
+        dataManager.$data.didChange
+            .sink { data in
+//                print(data)
             }
             .store(in: &cancellables)
         
-        isOpen = true
-        
-        Queue.main.execute(.delay(1)) { [weak self] in
-//            self?.isOpen = true
-            self?.owner.dog.name = "bokita"
-        }
-    
-//        stateWillChange.sink { [weak self]  in
-//            guard let self = self else {
-//                return
-//            }
-//            print("will change \(self.owner.dog.name) \(self.isOpen)")
+        dataManager.loadData(action: .refresh)
+//        Queue.main.execute(.delay(2)) {
+            self.dataManager.loadData(action: .clearAndRefresh)
+
 //        }
-//        .store(in: &cancellables)
-//
-//        stateDidChange.sink { [weak self]  in
-//            guard let self = self else {
-//                return
-//            }
-//            print("did change \(self.owner.dog.name) \(self.isOpen)")
-//        }
-//        .store(in: &cancellables)
-                
-//        exchangeImplementations(Human.self, originSelector: #selector(Human.walk), newSelector: #selector(Human.swizzle_walk))
-//
-//        overrideImplementation(Human.self, selector: #selector(Human.walk)) { originClass, originSelector, originIMPProvider in
-//            return ({ (object: AnyObject) -> Void in
-//                // call origin impl
-//                let oriIMP = unsafeBitCast(originIMPProvider(), to: (@convention(c) (AnyObject, Selector) -> Void).self)
-//                oriIMP(object, originSelector)
-//
-//                print("has override walk method")
-//            } as @convention(block) (AnyObject) -> Void)
-//        }
-//
-//        overrideImplementation(Human.self, selector: #selector(Human.speak(_:))) { originClass, originSelector, originIMPProvider in
-//            return ({ (object: AnyObject, words: String) -> Void in
-//                if let human = object as? Human {
-//                    // call origin impl
-//                    let oriIMP = unsafeBitCast(originIMPProvider(), to: (@convention(c) (AnyObject, Selector, String) -> Void).self)
-//                    oriIMP(human, originSelector, words)
-//
-//                    print("has override speak method")
-//                }
-//            } as @convention(block) (AnyObject, String) -> Void)
-//        }
-//
-//        overrideImplementation(Human.self, selector: #selector(Human.doWork(_:))) { originClass, originSelector, originIMPProvider in
-//            return ({ (object: AnyObject, task: String) -> String in
-//                // call origin impl
-//                let oriIMP = unsafeBitCast(originIMPProvider(), to: (@convention(c) (AnyObject, Selector, String) -> String).self)
-//                let result = oriIMP(object, originSelector, task)
-//
-//                print("has override doWork method")
-//
-//                return result
-//            } as @convention(block) (AnyObject, String) -> String)
-//        }
-        
-//        Human().speak("123")
-//        Human().walk()
-//        Human().swizzle_walk()
-//        print(Human().doWork("1236"))
-        
-//        Once.execute("123") {
-//            print("123")
-//        }
-//
-//        Once.execute("123") {
-//            print("456")
-//        }
-        var set = WeakSet<Int>()
-        
-        set.insert(1)
-        set.insert(2)
-        
-        print(set.weakReferenceCount)
-        
-        set.remove(1)
-        set.remove(2)
-        
-        DispatchQueue.main.async {
-            print(set.weakReferenceCount)
-        }
+
     }
 
     override func didReceiveMemoryWarning() {
@@ -145,33 +55,20 @@ class ViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
 
+    
+    func requestData(completionHandler: @escaping (Data) -> Void) async -> Bool {
+        false
+    }
 }
 
-class Human {
-    
-    @objc dynamic func walk() {
-        print("Human walk")
-    }
-    
-    @objc dynamic func swizzle_walk() {
-        print("Human walk (swizzled)")
-    }
-    
-    @objc dynamic func speak(_ words: String) {
-        print(words)
-    }
-    
-    @objc dynamic func doWork(_ task: String) -> String {
-        if task.count > 5 {
-            return "Human failed in task \(task)"
-        } else {
-            return"Human succeeded in task \(task)"
+final class MyDataProvider: PagingDataProviding {
+    func requestToLoadData(atPage pageToLoad: Int, forManager manager: PagingDataManager<MyDataProvider>, request: inout Cancellable?) async throws -> (data: [String], isEndOfData: Bool) {
+        print("Request")
+        request = AnyCancellable {
         }
+        
+//        try await Task.sleep(nanoseconds: NSEC_PER_SEC * 3)
+        
+        return (["A", "B", "C"], false)
     }
 }
-
-//class Man: Human {
-//    override func walk() {
-//        print("Man walk")
-//    }
-//}
