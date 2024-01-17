@@ -15,6 +15,8 @@ public extension Error {
             return true
         } catch CocoaError.userCancelled {
             return true
+        } catch is CancellationError {
+            return true
         } catch {
             return false
         }
