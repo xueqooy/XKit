@@ -8,6 +8,55 @@
 import Foundation
 import Combine
 
+/**
+ ```
+/// Objects can follow the StateObservableObject protocol (which is optional)
+/// As long as the attributes marked with @State or @Equtable change,
+/// it will trigger stateWillChange and stateDidChange
+ 
+class MyObject: StateObservableObject {
+    
+    /// As long as the value is assigned, a notification will be sent
+ 
+    @State
+    var age: Int = 0
+    
+ 
+    /// The value marked as @EqutableState must follow the Equtable protocol，
+    /// Unlike @State, notifications are only sent when the current value is determined to be unequal to the old value
+ 
+    @EquatableState
+    var name: String = ""
+
+}
+
+func example() {
+    var cancellables = Set<AnyCancellable>()
+    
+    let object = MyObject()
+
+    object.$name.willChange
+        .sink { newValue in
+            print("value will change to \(newValue)")
+        }
+        .store(in: &cancellables)
+
+    object.$name.didChange
+        .sink { newValue in
+            print("value did change to \(newValue)")
+        }
+        .store(in: &cancellables)
+
+    object.stateDidChange
+        .sink {
+            print("name or age did change")
+        }
+        .store(in: &cancellables)
+}
+ ```
+*/
+
+
 final public class StateObservableObjectPublisher : Publisher {
     
     public typealias Output = Void
