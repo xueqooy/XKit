@@ -65,6 +65,8 @@ final public class StateObservableObjectPublisher : Publisher {
     
     private let storage: PassthroughSubject<Output, Never>
     
+    fileprivate var isEnabled: Bool = true
+    
     public init() {
         self.storage = .init()
     }
@@ -74,8 +76,12 @@ final public class StateObservableObjectPublisher : Publisher {
     }
     
     final public func send() {
+        guard isEnabled else { return }
+        
         storage.send()
     }
+    
+    
 }
 
 
@@ -86,6 +92,7 @@ public protocol StateObservableObject: AnyObject {
 
 private let willChangePublisherAssociation = Association<StateObservableObjectPublisher>()
 private let didChangePublisherAssociation = Association<StateObservableObjectPublisher>()
+private let isPerformingBatchStateUpdatesAssociation = Association<Bool>()
 
 public extension StateObservableObject {
     
@@ -105,6 +112,31 @@ public extension StateObservableObject {
             didChangePublisherAssociation[self] = publisher
         }
         return publisher!
+    }
+    
+    private var isPerformingBatchStateUpdates: Bool {
+        set { isPerformingBatchStateUpdatesAssociation[self] = newValue }
+        get { isPerformingBatchStateUpdatesAssociation[self] ?? false }
+    }
+    
+    func performBatchStateUpdates(_ updates: (Self) -> Void) {
+        Asserts.failure("Nested calls `performBatchStateUpdates` are not allowed", condition: !isPerformingBatchStateUpdates)
+         
+        stateWillChange.send()
+        
+        stateWillChange.isEnabled = false
+        stateDidChange.isEnabled = false
+        
+        isPerformingBatchStateUpdates = true
+
+        updates(self)
+        
+        isPerformingBatchStateUpdates = false
+        
+        stateWillChange.isEnabled = true
+        stateDidChange.isEnabled = true
+                
+        stateDidChange.send()
     }
 }
 

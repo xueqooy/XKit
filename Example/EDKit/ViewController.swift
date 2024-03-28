@@ -10,44 +10,68 @@ import UIKit
 import EDKit
 import Combine
 
+class Person: StateObservableObject {
+    
+    @EquatableState
+    var name: String = "Hi"
+    
+    @EquatableState
+    var age: Int = 0
+}
+
+extension Person: CustomStringConvertible {
+    
+    var description: String {
+        "\(name) : \(age)"
+    }
+    
+}
 
 class ViewController: UIViewController {
+        
+    private let person = Person()
     
-    lazy var myDataProvider = MyDataProvider()
-    lazy var dataManager = PagingDataManager(startPage: 0, numberOfLoadsPerPage: 10, provider: myDataProvider)
-    
-    var cancellables = Set<AnyCancellable>()
+    private var cancellables = Set<AnyCancellable>()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         
-        Logs.add(ConsoleLogger.shared)
-        
-//        dataManager.didBeginLoadingPublisher
-//            .sink {
-//                print("Begin load")
-//            }
-//            .store(in: &cancellables)
-//
-//        dataManager.didEndLoadingPublisher
-//            .sink {
-//                print("End load")
-//            }
-//            .store(in: &cancellables)
-        
-        dataManager.$data.didChange
-            .sink { data in
-//                print(data)
+        person.stateWillChange
+            .sink { [weak self] in
+                guard let self else { return }
+                
+                print("will change \(self.person)")
+            }
+            .store(in: &cancellables)
+
+        person.stateDidChange
+            .sink { [weak self] in
+                guard let self else { return }
+                
+                print("did change \(self.person)")
             }
             .store(in: &cancellables)
         
-        dataManager.loadData(action: .refresh)
-//        Queue.main.execute(.delay(2)) {
-            self.dataManager.loadData(action: .clearAndRefresh)
-
-//        }
-
+        person.$name.didChange
+            .sink { name in
+                print("name -> \(name)")
+            }
+            .store(in: &cancellables)
+        
+        person.$age.didChange
+            .sink { age in
+                print("age -> \(age)")
+            }
+            .store(in: &cancellables)
+        
+        person.performBatchStateUpdates {
+            $0.name = "Hello"
+            $0.age = 100
+        }
+        
+//        person.name = "Hello"
+//        person.age = 100
     }
 
     override func didReceiveMemoryWarning() {
@@ -58,17 +82,5 @@ class ViewController: UIViewController {
     
     func requestData(completionHandler: @escaping (Data) -> Void) async -> Bool {
         false
-    }
-}
-
-final class MyDataProvider: PagingDataProviding {
-    func requestToLoadData(atPage pageToLoad: Int, forManager manager: PagingDataManager<MyDataProvider>, request: inout Cancellable?) async throws -> (data: [String], isEndOfData: Bool) {
-        print("Request")
-        request = AnyCancellable {
-        }
-        
-//        try await Task.sleep(nanoseconds: NSEC_PER_SEC * 3)
-        
-        return (["A", "B", "C"], false)
     }
 }
