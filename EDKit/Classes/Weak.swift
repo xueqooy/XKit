@@ -7,7 +7,7 @@
 
 import Foundation
 
-public class Weak<T: AnyObject> {
+public class Weak<T: AnyObject>: Hashable {
     
     public private(set) weak var value: T?
 
@@ -18,6 +18,19 @@ public class Weak<T: AnyObject> {
     public init(_ value: T) {
         self.value = value
     }
+    
+    public static func == (lhs: Weak<T>, rhs: Weak<T>) -> Bool {
+        lhs.value === rhs.value
+    }
+    
+    public func hash(into hasher: inout Hasher) {
+        if var value {
+            hasher.combine(UnsafeMutablePointer<T>(&value).hashValue)
+        } else {
+            hasher.combine(0)
+        }
+    }
+    
 }
 
 /// Simlilar to Weak, but do not check for generics
@@ -91,10 +104,10 @@ public struct WeakArray<Element: AnyObject>: Sequence, ExpressibleByArrayLiteral
 public struct WeakSet<Element: AnyObject>: Sequence, ExpressibleByArrayLiteral, CustomStringConvertible, CustomDebugStringConvertible {
         
     public var elements: [Element] {
-        store.allObjects
+        store.flatMap { $0.value }
     }
     
-    private var store = NSHashTable<Element>.weakObjects()
+    private var store = Set<Weak<Element>>()
     
     public init(_ elements: [Element] = []) {
         for element in elements {
@@ -107,18 +120,21 @@ public struct WeakSet<Element: AnyObject>: Sequence, ExpressibleByArrayLiteral, 
     }
     
     public mutating func insert(_ element: Element) {
-        store.add(element)
+        store.insert(Weak(element))
     }
     
     public mutating func remove(_ element: Element)  {
-        store.remove(element)
+        store.remove(Weak(element))
     }
     
-    public func makeIterator() -> AnyIterator<Element> {
-        let iterator = store.objectEnumerator()
-        return AnyIterator {
-            return iterator.nextObject() as? Element
+    public mutating func compact() {
+        store = store.filter { weakBox in
+            weakBox.value != nil
         }
+    }
+    
+    public func makeIterator() -> IndexingIterator<[Element]> {
+        elements.makeIterator()
     }
 
     public var description: String {
