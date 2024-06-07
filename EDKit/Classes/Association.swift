@@ -52,6 +52,7 @@ extension UIView {
 */
 
 public class Association<T> {
+    
     public enum Policy {
         case assign
         case retainNonatomic
@@ -101,7 +102,7 @@ public class Association<T> {
             case .retain:
                 return (objc_getAssociatedObject(index, key) as? Retain<T>)?.value
             case .weak:
-                return (objc_getAssociatedObject(index, key) as? Weak<T>)?.value
+                return (objc_getAssociatedObject(index, key) as? Weak<AnyObject>)?.value as? T
             }
         }
         set {
@@ -112,7 +113,7 @@ public class Association<T> {
                 case .retain:
                     objc_setAssociatedObject(index, key, Retain(value), associationPolicy)
                 case .weak:
-                    objc_setAssociatedObject(index, key, Weak(value: value), associationPolicy)
+                    objc_setAssociatedObject(index, key, Weak(value: value as AnyObject), associationPolicy)
                 }
             } else {
                 objc_setAssociatedObject(index, key, nil, associationPolicy)

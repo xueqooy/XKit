@@ -7,19 +7,22 @@
 
 import Foundation
 
-public protocol WorkQueuing {
+public protocol Executing {
     var underlyingQueue: DispatchQueue { get }
     
     func execute(_ work: @escaping () -> Void)
 }
 
-extension DispatchQueue: WorkQueuing {
+public extension Executing {
+    func execute(_ work: @escaping () -> Void) {
+        underlyingQueue.async(execute: work)
+    }
+}
+
+
+extension DispatchQueue: Executing {
     public var underlyingQueue: DispatchQueue {
         self
-    }
-    
-    public func execute(_ work: @escaping () -> Void) {
-        underlyingQueue.async(execute: work)
     }
 }
 
@@ -86,7 +89,7 @@ public final class Queue {
     }
 }
 
-extension Queue: WorkQueuing {
+extension Queue: Executing {
     public func execute(_ work: @escaping () -> Void) {
         execute(.async(), work: work)
     }

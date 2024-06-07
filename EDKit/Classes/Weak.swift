@@ -7,40 +7,36 @@
 
 import Foundation
 
-public class Weak<T> {
-    private weak var _value: AnyObject?
+public class Weak<T: AnyObject> {
     
-    private let identifier: ObjectIdentifier
-
-    public var value: T? {
-        _value as? T
-    }
+    public private(set) weak var value: T?
 
     public init(value: T) {
-        self.identifier = ObjectIdentifier(value as AnyObject)
-        self._value = value as AnyObject
-    }
-}
-
-extension Weak: Hashable {
-    public static func == (lhs: Weak<T>, rhs: Weak<T>) -> Bool {
-        lhs.identifier == rhs.identifier
+        self.value = value
     }
     
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(identifier)
+    public init(_ value: T) {
+        self.value = value
     }
 }
 
-public struct WeakArray<Element> {
-    private var store: [Weak<Element>] = []
 
+public struct WeakArray<Element: AnyObject>: Sequence, ExpressibleByArrayLiteral, CustomStringConvertible, CustomDebugStringConvertible  {
+    
     public var elements: [Element] {
         store.compactMap { $0.value }
     }
 
-    public var weakReferenceCount: Int {
-        store.count
+    private var store: [Weak<Element>] = []
+        
+    public init(_ elements: [Element] = []) {
+        for element in elements {
+            self.append(element)
+        }
+    }
+    
+    public init(arrayLiteral elements: Element...) {
+        self.init(elements)
     }
 
     public mutating func append(_ element: Element) {
@@ -59,51 +55,59 @@ public struct WeakArray<Element> {
             weakBox.value == nil
         }
     }
-}
-
-extension WeakArray: ExpressibleByArrayLiteral {
-    public typealias ArrayLiteralElement = Element
-    public init(arrayLiteral elements: Element...) {
-        self.init()
-        for element in elements {
-            self.append(element)
-        }
+    
+    public func makeIterator() -> IndexingIterator<[Element]>  {
+        elements.makeIterator()
+    }
+    
+    public var description: String {
+        elements.description
+    }
+    
+    public var debugDescription: String {
+        elements.debugDescription
     }
 }
 
 
-public struct WeakSet<Element> {
-    private var store = Set<Weak<Element>>()
-    
+public struct WeakSet<Element: AnyObject>: Sequence, ExpressibleByArrayLiteral, CustomStringConvertible, CustomDebugStringConvertible {
+        
     public var elements: [Element] {
-        store.compactMap { $0.value }
+        store.allObjects
     }
     
-    public var weakReferenceCount: Int {
-        store.count
-    }
+    private var store = NSHashTable<Element>.weakObjects()
     
-    public mutating func insert(_ element: Element) {
-        store.insert(Weak(value: element))
-    }
-    
-    public mutating func remove(_ element: Element)  {
-        store.remove(Weak(value: element))
-    }
-
-    public mutating func compact() {
-        store = store.filter { weakBox in
-            weakBox.value != nil
-        }
-    }
-}
-
-extension WeakSet: ExpressibleByArrayLiteral {
-    public typealias ArrayLiteralElement = Element
-    public init(arrayLiteral elements: Element...) {
-        self.init()
+    public init(_ elements: [Element] = []) {
         for element in elements {
             self.insert(element)
         }
+    }
+    
+    public init(arrayLiteral elements: Element...) {
+        self.init(elements)
+    }
+    
+    public mutating func insert(_ element: Element) {
+        store.add(element)
+    }
+    
+    public mutating func remove(_ element: Element)  {
+        store.remove(element)
+    }
+    
+    public func makeIterator() -> AnyIterator<Element> {
+        let iterator = store.objectEnumerator()
+        return AnyIterator {
+            return iterator.nextObject() as? Element
+        }
+    }
+
+    public var description: String {
+        elements.description
+    }
+    
+    public var debugDescription: String {
+        elements.debugDescription
     }
 }
