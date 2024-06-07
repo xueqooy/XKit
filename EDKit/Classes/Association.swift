@@ -63,7 +63,7 @@ public class Association<T> {
     
     public enum Wrap {
         case retain
-        case weak
+        case weak // Only used for class type
     }
     
     private class Retain<Value> {
@@ -102,7 +102,7 @@ public class Association<T> {
             case .retain:
                 return (objc_getAssociatedObject(index, key) as? Retain<T>)?.value
             case .weak:
-                return (objc_getAssociatedObject(index, key) as? Weak<AnyObject>)?.value as? T
+                return (objc_getAssociatedObject(index, key) as? UncheckedWeak<T>)?.value
             }
         }
         set {
@@ -113,7 +113,7 @@ public class Association<T> {
                 case .retain:
                     objc_setAssociatedObject(index, key, Retain(value), associationPolicy)
                 case .weak:
-                    objc_setAssociatedObject(index, key, Weak(value: value as AnyObject), associationPolicy)
+                    objc_setAssociatedObject(index, key, UncheckedWeak(value), associationPolicy)
                 }
             } else {
                 objc_setAssociatedObject(index, key, nil, associationPolicy)

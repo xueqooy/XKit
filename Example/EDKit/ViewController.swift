@@ -27,8 +27,6 @@ extension Person: CustomStringConvertible {
     
 }
 
-let association = Association<UIViewController>(wrap: .weak)
-
 class ViewController: UIViewController {
         
     let tuple = (1, 2)
@@ -101,9 +99,6 @@ class ViewController: UIViewController {
 //        }
 //        .store(in: &cancellables)
 
-        association[self] = UIViewController()
-        
-        print(association[self])
     }
 
     override func didReceiveMemoryWarning() {

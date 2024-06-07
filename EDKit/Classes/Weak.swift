@@ -20,6 +20,24 @@ public class Weak<T: AnyObject> {
     }
 }
 
+/// Simlilar to Weak, but do not check for generics
+public class UncheckedWeak<T> {
+        
+    private weak var _value: AnyObject?
+    
+    public var value: T? {
+        _value as? T
+    }
+
+    public init(value: T) {
+        self._value = value as AnyObject
+    }
+    
+    public init(_ value: T) {
+        self._value = value as AnyObject
+    }
+}
+
 
 public struct WeakArray<Element: AnyObject>: Sequence, ExpressibleByArrayLiteral, CustomStringConvertible, CustomDebugStringConvertible  {
     
