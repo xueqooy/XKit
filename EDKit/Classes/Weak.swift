@@ -7,31 +7,45 @@
 
 import Foundation
 
+private let identifierAssociation = Association<UUID>(wrap: .retain)
+
 public class Weak<T: AnyObject>: Hashable {
+ 
+    private let identifier: UUID
     
     public private(set) weak var value: T?
 
     public init(value: T) {
         self.value = value
+        
+        if let identifier = identifierAssociation[value] {
+            self.identifier = identifier
+        } else {
+            self.identifier = UUID()
+            identifierAssociation[value] = self.identifier
+        }
     }
     
     public init(_ value: T) {
         self.value = value
-    }
-    
-    public static func == (lhs: Weak<T>, rhs: Weak<T>) -> Bool {
-        lhs.value === rhs.value
-    }
-    
-    public func hash(into hasher: inout Hasher) {
-        if var value {
-            hasher.combine(UnsafeMutablePointer<T>(&value).hashValue)
+        
+        if let identifier = identifierAssociation[value] {
+            self.identifier = identifier
         } else {
-            hasher.combine(0)
+            self.identifier = UUID()
+            identifierAssociation[value] = self.identifier
         }
     }
     
+    public static func == (lhs: Weak<T>, rhs: Weak<T>) -> Bool {
+        lhs.identifier == rhs.identifier
+    }
+    
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(identifier)
+    }
 }
+
 
 /// Simlilar to Weak, but do not check for generics
 public class UncheckedWeak<T> {
