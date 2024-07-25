@@ -9,8 +9,8 @@
 import Foundation
 
 public struct TextComponent {
-    let pattern: String?
-    let value: String
+    public let pattern: String?
+    public let value: String
 }
 
 public enum TextComponentParser {
