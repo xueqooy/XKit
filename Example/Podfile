@@ -2,10 +2,10 @@ use_frameworks!
 
 platform :ios, '13.0'
 
-target 'EDKit_Example' do
-  pod 'EDKit', :path => '../'
+target 'XKit_Example' do
+  pod 'XKit', :path => '../'
 
-  target 'EDKit_Tests' do
+  target 'XKit_Tests' do
     inherit! :search_paths
 
     

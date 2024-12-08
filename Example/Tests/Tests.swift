@@ -1,5 +1,5 @@
 import XCTest
-import EDKit
+import XKit
 
 class Tests: XCTestCase {
     
