@@ -1,4 +1,3 @@
-```markdown
 # XKit
 
 XKit is a lightweight and powerful utility library for iOS development.
@@ -61,4 +60,3 @@ XKit is licensed under the MIT License. See [LICENSE](LICENSE) for more informat
 
 - GitHub: [https://github.com/xueqooy/XKit](https://github.com/xueqooy/XKit)
 - Email: xue_qooy@163.com
-```
