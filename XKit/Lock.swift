@@ -5,36 +5,68 @@
 //  Created by 🌊 薛 on 2022/9/21.
 //
 
-import Foundation
+import Darwin
 
-public final class Lock: NSObject {
-    private var mutex = pthread_mutex_t()
+@available(macOS 10.12, iOS 10.0, tvOS 10.0, watchOS 3.0, *)
+typealias UnfairLock = os_unfair_lock_t
+
+@available(macOS 10.12, iOS 10.0, tvOS 10.0, watchOS 3.0, *)
+extension UnsafeMutablePointer where Pointee == os_unfair_lock_s {
+    internal init() {
+        let l = UnsafeMutablePointer.allocate(capacity: 1)
+        l.initialize(to: os_unfair_lock())
+        self = l
+    }
     
-    public override init() {
-        pthread_mutex_init(&mutex, nil)
-        
-        super.init()
+    internal func cleanupLock() {
+        deinitialize(count: 1)
+        deallocate()
+    }
+    
+    internal func lock() {
+        os_unfair_lock_lock(self)
+    }
+    
+    internal func tryLock() -> Bool {
+        let result = os_unfair_lock_trylock(self)
+        return result
+    }
+    
+    internal func unlock() {
+        os_unfair_lock_unlock(self)
+    }
+}
+
+public class Lock {
+    
+    private let _lock: UnfairLock
+    
+    public init() {
+        _lock = UnfairLock()
     }
     
     deinit {
-        pthread_mutex_destroy(&mutex)
+        _lock.cleanupLock()
     }
     
-    @objc
-    public func execute(_ work: () -> Void) {
-        pthread_mutex_lock(&mutex)
-        work()
-        pthread_mutex_unlock(&mutex)
+    public func lock() {
+        _lock.lock()
     }
     
-    @objc
-    public func enter() {
-        pthread_mutex_lock(&mutex)
+    public func unlock() {
+        _lock.unlock()
     }
     
-    @objc
-    public func leave() {
-        pthread_mutex_unlock(&mutex)
+    public func tryLock() -> Bool {
+        return _lock.tryLock()
+    }
+    
+    @discardableResult
+    public func withLock<T>(_ body: () throws -> T) rethrows -> T {
+        lock()
+        defer { unlock() }
+        return try body()
     }
 }
+
 

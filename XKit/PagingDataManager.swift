@@ -23,6 +23,13 @@ public class PagingDataManager<Provider: PagingDataProviding>: StateObservableOb
         case loadMore // Load more data
     }
     
+    public enum Status {
+        case idle
+        case loading
+        case success
+        case failure(Error)
+    }
+    
     public typealias DataType = Provider.DataType
                 
     public var debugName: String?
@@ -39,8 +46,8 @@ public class PagingDataManager<Provider: PagingDataProviding>: StateObservableOb
     @EquatableState
     public private(set) var isEndOfData: Bool = false
     
-    @EquatableState
-    public private(set) var isLoading: Bool = false
+    @State
+    public private(set) var status: Status = .idle
     
     public var isDataEmpty: Bool {
         data.isEmpty
@@ -49,18 +56,24 @@ public class PagingDataManager<Provider: PagingDataProviding>: StateObservableOb
     public let startPage: Int
     public let numberOfLoadsPerPage: Int
     public let provider: Provider
-    
+    public let clearDataWhenFailure: Bool
+
     private var currentLoadRequest: Cancellable?
-    
-    public init(startPage: Int, numberOfLoadsPerPage: Int, provider: Provider, debugName: String? = nil) {
+    private var currentTaskId: UUID?
+        
+    public init(startPage: Int, numberOfLoadsPerPage: Int, provider: Provider, clearDataWhenFailure: Bool = false, debugName: String? = nil) {
         self.startPage = startPage
         self.numberOfLoadsPerPage = numberOfLoadsPerPage
         self.provider = provider
+        self.clearDataWhenFailure = clearDataWhenFailure
         self.debugName = debugName
     }
     
     @discardableResult
     public func loadData(action: Action = .refresh) -> Bool {
+        let taskId = UUID()
+        self.currentTaskId = taskId
+        
         if action == .loadMore && !canLoadMore {
             Logs.error("\(self) -> Load more is disabled [\(self)]", tag: debugName)
             return false
@@ -108,9 +121,9 @@ public class PagingDataManager<Provider: PagingDataProviding>: StateObservableOb
         Logs.info("\(self) \(action) -> request to load page \(pageToLoad)", tag: debugName)
         
         // Start new request
-        isLoading = true
+        status = .loading
         currentLoadRequest = provider.requestToLoadData(atPage: pageToLoad, forManager: self) { [weak self] result in
-            guard let self = self else { return }
+            guard let self, self.currentTaskId == taskId else { return }
             
             self.currentLoadRequest = nil
             
@@ -129,16 +142,23 @@ public class PagingDataManager<Provider: PagingDataProviding>: StateObservableOb
                 // Enable load more if has more data
                 self.canLoadMore = !isEndOfData
                 
-                self.isLoading = false
+                self.status = .success
                 
                 Logs.info("\(self) \(action) -> data did load +\(data.count)", tag: debugName)
             case .failure(let error):
                 guard !error.isCancelled else { return }
                             
-                // Enable load more if has more data and loaded data
-                self.canLoadMore = !self.isEndOfData && !self.isDataEmpty
+                if self.clearDataWhenFailure {
+                    self.data = []
+                    self.currentPage = nil
+                    self.isEndOfData = false
+                    self.canLoadMore = false
+                } else {
+                    // Enable load more if has more data and loaded data
+                    self.canLoadMore = !self.isEndOfData && !self.isDataEmpty
+                }
                 
-                self.isLoading = false
+                self.status = .failure(error)
                 
                 Logs.error("\(self) \(action) -> load data error \(error)", tag: debugName)
             }
@@ -148,7 +168,19 @@ public class PagingDataManager<Provider: PagingDataProviding>: StateObservableOb
     }
     
     public func cancelCurrentLoadRequest() {
+        currentTaskId = nil
         currentLoadRequest?.cancel()
+    }
+    
+    public func reset() {
+        performBatchStateUpdates {
+            $0.cancelCurrentLoadRequest()
+            $0.canLoadMore = false
+            $0.currentPage = nil
+            $0.isEndOfData = false
+            $0.data = []
+            $0.status = .idle
+        }
     }
 }
 

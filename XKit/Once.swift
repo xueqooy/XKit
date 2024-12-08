@@ -12,12 +12,12 @@ public struct Once {
     private static var executedIdentifiers = Set<String>()
     
     public static func execute(_ identifier: String, work: () -> Void) {
-        lock.enter()
+        lock.lock()
         if !executedIdentifiers.contains(identifier) {
             executedIdentifiers.insert(identifier)
             work()
         }
-        lock.leave()
+        lock.unlock()
     }
     
     @available(*, unavailable)

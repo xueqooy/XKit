@@ -91,7 +91,7 @@ public struct OrderedDictionarySlice<Key: Hashable, Value>: RandomAccessCollecti
     
     public mutating func partition(
         by belongsInSecondPartition: (Base.Element) throws -> Bool
-    ) rethrows -> Index {
+    ) rethrows -> Base.Index {
         return try base._partition(
             in: indices,
             by: belongsInSecondPartition

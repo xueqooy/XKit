@@ -2,7 +2,7 @@
 //  Weak.swift
 //  XKit
 //
-//  Created by 🌊 薛 on 2022/9/21.
+//  Created by xueqooy on 2022/9/21.
 //
 
 import Foundation
@@ -90,7 +90,7 @@ public struct WeakArray<Element: AnyObject>: Sequence, ExpressibleByArrayLiteral
 
     public mutating func removeAll(where shouldDelete: (Element) throws -> Bool) rethrows {
         try store.removeAll { weakBox in
-            guard let element = weakBox.value else { return false }
+            guard let element = weakBox.value else { return true }
             return try shouldDelete(element)
         }
     }
@@ -118,7 +118,7 @@ public struct WeakArray<Element: AnyObject>: Sequence, ExpressibleByArrayLiteral
 public struct WeakSet<Element: AnyObject>: Sequence, ExpressibleByArrayLiteral, CustomStringConvertible, CustomDebugStringConvertible {
         
     public var elements: [Element] {
-        store.flatMap { $0.value }
+        store.compactMap { $0.value }
     }
     
     private var store = Set<Weak<Element>>()

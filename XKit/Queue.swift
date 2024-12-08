@@ -5,8 +5,6 @@
 //  Created by 🌊 薛 on 2022/9/21.
 //
 
-import Foundation
-
 public protocol Executing {
     var underlyingQueue: DispatchQueue { get }
     
@@ -28,8 +26,9 @@ extension DispatchQueue: Executing {
 
 public final class Queue {
     public enum Operation {
-        case async(forced: Bool = false)
-        case sync(forced: Bool = false)
+        case async
+        case asyncBarrier
+        case sync
         case delay(_ seconds: TimeInterval)
     }
     
@@ -69,29 +68,40 @@ public final class Queue {
         underlyingQueue.setSpecific(key: specificKey, value: nil)
     }
     
-    public func execute(_ op: Queue.Operation = .async(), work: @escaping () -> Void) {
+    public func execute(_ op: Queue.Operation = .async, work: @escaping () -> Void) {
         switch op {
-        case .async(let forced):
-            if forced || !isCurrent {
+        case .async:
+            if !isCurrent {
                 underlyingQueue.async(execute: work)
             } else {
                 work()
             }
-        case .sync(let forced):
-            if forced || !isCurrent {
+        case .sync:
+            if !isCurrent {
                 underlyingQueue.sync(execute: work)
             } else {
                 work()
             }
+        case .asyncBarrier:
+            underlyingQueue.async(flags: .barrier, execute: work)
+            
         case .delay(let seconds):
             underlyingQueue.asyncAfter(deadline: .now() + seconds, execute: work)
+        }
+    }
+    
+    public func sync<T>(_ work: () -> T) -> T {
+        if isCurrent {
+            return work()
+        } else {
+            return underlyingQueue.sync(execute: work)
         }
     }
 }
 
 extension Queue: Executing {
     public func execute(_ work: @escaping () -> Void) {
-        execute(.async(), work: work)
+        execute(.async, work: work)
     }
 }
 
