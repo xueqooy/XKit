@@ -5,8 +5,7 @@
 //  Created by xueqooy on 2024/10/22.
 //
 
-import Foundation
 import Combine
+import Foundation
 
-extension Task: Cancellable {}
-
+extension Task: @retroactive Cancellable {}

@@ -10,7 +10,7 @@ import UIKit
 public struct Once {
     private static let lock = Lock()
     private static var executedIdentifiers = Set<String>()
-    
+
     public static func execute(_ identifier: String, work: () -> Void) {
         lock.lock()
         if !executedIdentifiers.contains(identifier) {
@@ -19,7 +19,7 @@ public struct Once {
         }
         lock.unlock()
     }
-    
+
     @available(*, unavailable)
     public init() {}
 }

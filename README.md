@@ -51,10 +51,6 @@ XKit provides a variety of useful tools for developers:
 - **`ValueValidation.swift`**: Utilities for validating values such as strings, numbers, or other data types.
 - **`Weak.swift`**: A utility to create weak references to objects, preventing retain cycles.
 
-## Note
-
-This repository does not provide any installation methods like CocoaPods or Swift Package Manager. You are free to copy the codebase and make any custom modifications as per your requirements.
-
 ## License
 
 XKit is licensed under the MIT License. See [LICENSE](LICENSE) for more information.

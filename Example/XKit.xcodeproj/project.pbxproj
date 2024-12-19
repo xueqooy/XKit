@@ -13,6 +13,8 @@
 		607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDC1AFB9204008FA782 /* Images.xcassets */; };
 		607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDE1AFB9204008FA782 /* LaunchScreen.xib */; };
 		607FACEC1AFB9204008FA782 /* Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACEB1AFB9204008FA782 /* Tests.swift */; };
+		6D9EEA712D14540F005611CB /* XKit in Frameworks */ = {isa = PBXBuildFile; productRef = 6D9EEA702D14540F005611CB /* XKit */; };
+		6D9EEA742D14542D005611CB /* XKit in Frameworks */ = {isa = PBXBuildFile; productRef = 6D9EEA732D14542D005611CB /* XKit */; };
 		D0FB09FBF3830F7DF5FFE812 /* Pods_XKit_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24699DC5D8793CB197674BC1 /* Pods_XKit_Tests.framework */; };
 		E4A74B6AAD94FD6858652305 /* Pods_XKit_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D8C0B91D4429F08F08FCC33 /* Pods_XKit_Example.framework */; };
 /* End PBXBuildFile section */
@@ -43,6 +45,7 @@
 		607FACEB1AFB9204008FA782 /* Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests.swift; sourceTree = "<group>"; };
 		612E2D65C8A3391BC7DA97D3 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		6D3BABFC2D05BD5B00218A6B /* XKit.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; name = XKit.podspec; path = ../XKit.podspec; sourceTree = SOURCE_ROOT; };
+		6D9EEA6D2D144DEE005611CB /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Package.swift; path = ../Package.swift; sourceTree = SOURCE_ROOT; };
 		713EB4ACF32100BF22117718 /* Pods-XKit_Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-XKit_Tests.debug.xcconfig"; path = "Target Support Files/Pods-XKit_Tests/Pods-XKit_Tests.debug.xcconfig"; sourceTree = "<group>"; };
 		73156907A51430447C028C5C /* Pods-EDKit_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EDKit_Example.release.xcconfig"; path = "Target Support Files/Pods-EDKit_Example/Pods-EDKit_Example.release.xcconfig"; sourceTree = "<group>"; };
 		7551140FC01E11CED28E4371 /* Pods-EDKit_Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EDKit_Tests.debug.xcconfig"; path = "Target Support Files/Pods-EDKit_Tests/Pods-EDKit_Tests.debug.xcconfig"; sourceTree = "<group>"; };
@@ -58,7 +61,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6D9EEA712D14540F005611CB /* XKit in Frameworks */,
 				E4A74B6AAD94FD6858652305 /* Pods_XKit_Example.framework in Frameworks */,
+				6D9EEA742D14542D005611CB /* XKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -76,6 +81,7 @@
 		607FACC71AFB9204008FA782 = {
 			isa = PBXGroup;
 			children = (
+				6D9EEA6D2D144DEE005611CB /* Package.swift */,
 				607FACF51AFB993E008FA782 /* Podspec Metadata */,
 				607FACD21AFB9204008FA782 /* Example for XKit */,
 				607FACE81AFB9204008FA782 /* Tests */,
@@ -239,6 +245,8 @@
 				Base,
 			);
 			mainGroup = 607FACC71AFB9204008FA782;
+			packageReferences = (
+			);
 			productRefGroup = 607FACD11AFB9204008FA782 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -614,6 +622,17 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		6D9EEA702D14540F005611CB /* XKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = XKit;
+		};
+		6D9EEA732D14542D005611CB /* XKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = XKit;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 607FACC81AFB9204008FA782 /* Project object */;
 }

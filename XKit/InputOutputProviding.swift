@@ -9,7 +9,7 @@ import Foundation
 
 public protocol InputProviding {
     associatedtype Input
-    
+
     var input: Input { get }
 }
 

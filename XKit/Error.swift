@@ -1,5 +1,5 @@
 //
-//  Error+isCancelled.swift
+//  Error.swift
 //  XKit
 //
 //  Created by xueqooy on 2023/9/12.
@@ -25,14 +25,14 @@ public extension Error {
 
 /**
  Example:
- 
+
  ```
  enum ONBError: Error, UnderlyingErrorProviding {
      case notLoggedIn
      case unrecognizedStep
      case notDisplayOnboarding
      case unknown(underlying: Error)
-     
+
      var underlyingError: Error? {
          if case .unknown(let underlying) = self {
              return underlying

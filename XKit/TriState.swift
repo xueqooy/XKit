@@ -8,26 +8,25 @@
 import Foundation
 
 public enum TriState<T> {
-    
     case indeterminate
     case absent
     case present(T)
-    
+
     public var isPresent: Bool {
-        if case .present(_) = self {
+        if case .present = self {
             return true
         }
         return false
     }
-    
+
     public var isAbsent: Bool {
         if case .absent = self {
             return true
         }
         return false
     }
-    
-    public var isIndeterminate : Bool {
+
+    public var isIndeterminate: Bool {
         if case .indeterminate = self {
             return true
         }
@@ -41,7 +40,7 @@ public enum TriState<T> {
             return nil
         }
     }
-    
+
     public init(_ value: T?) {
         if let value = value {
             self = .present(value)
@@ -51,9 +50,6 @@ public enum TriState<T> {
     }
 }
 
+extension TriState: Equatable where T: Equatable {}
 
-extension TriState: Equatable where T : Equatable {
-}
-
-extension TriState: Hashable where T : Hashable {
-}
+extension TriState: Hashable where T: Hashable {}

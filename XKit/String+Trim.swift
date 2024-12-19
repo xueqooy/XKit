@@ -8,7 +8,6 @@
 import Foundation
 
 public extension String {
-    
     func trimmingWhitespacesAndAndNewlines() -> String {
         var whitespace = CharacterSet(charactersIn: "\u{200B}") // Zero-width space
         whitespace.formUnion(CharacterSet.whitespacesAndNewlines)

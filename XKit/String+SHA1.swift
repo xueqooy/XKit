@@ -6,9 +6,10 @@
 //
 
 import CommonCrypto
+import Foundation
 
-extension String {
-    public func sha1Encoded() -> String {
+public extension String {
+    func sha1Encoded() -> String {
         let data = self.data(using: String.Encoding.utf8)!
         var digest = [UInt8](repeating: 0, count: Int(CC_SHA1_DIGEST_LENGTH))
         CC_SHA1([UInt8](data), CC_LONG(data.count), &digest)
@@ -20,4 +21,3 @@ extension String {
         return output as String
     }
 }
-
