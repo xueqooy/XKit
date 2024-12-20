@@ -11,7 +11,6 @@ XKit provides a variety of useful tools for developers:
 
 ### Core Tools
 
-- **`OrderedDictionary`**: An ordered key-value collection, preserving the insertion order of keys.
 - **`ArrayBuilder.swift`**: A utility for constructing arrays with a builder pattern.
 - **`Asserts.swift`**: Assertions for debugging and testing purposes.
 - **`Association.swift`**: For associating objects with keys (like Objective-C associated objects).
